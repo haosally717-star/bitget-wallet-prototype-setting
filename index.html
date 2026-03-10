@@ -29,7 +29,8 @@ const C = {
   border: "rgba(255,255,255,0.06)", tabBg: "#0E1217",
 };
 
-function TabBar({ active, onSwitch, badge }) {
+// TabBar now accepts `swapped` prop: when true, wallet is position 1 and home is position 5
+function TabBar({ active, onSwitch, badge, swapped }) {
   const svgHome = (c) => React.createElement('svg',{width:22,height:22,viewBox:"0 0 24 24",fill:"none"},
     React.createElement('path',{d:"M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z",stroke:c,strokeWidth:"1.8",fill:"none"}),
     React.createElement('path',{d:"M9 21V14h6v7",stroke:c,strokeWidth:"1.8"}));
@@ -43,7 +44,18 @@ function TabBar({ active, onSwitch, badge }) {
     React.createElement('path',{d:"M3 10h18",stroke:c,strokeWidth:"1.8"}),
     React.createElement('circle',{cx:17,cy:14,r:1.5,fill:c}));
 
-  const tabs = [
+  // Default order: home, market, swap, pay, wallet
+  // Swapped order: wallet, market, swap, pay, 发现(原首页)
+  const svgDiscover = (c) => React.createElement('svg',{width:22,height:22,viewBox:"0 0 24 24",fill:"none"},
+    React.createElement('circle',{cx:12,cy:12,r:9,stroke:c,strokeWidth:"1.8"}),
+    React.createElement('path',{d:"M16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36z",stroke:c,strokeWidth:"1.6",strokeLinejoin:"round"}));
+  const tabs = swapped ? [
+    {id:"wallet",label:"钱包",svg:svgWallet},
+    {id:"market",label:"行情",svg:svgMarket},
+    {id:"swap",isCenter:true},
+    {id:"pay",label:"Pay",svg:svgPay},
+    {id:"home",label:"动态",svg:svgDiscover},
+  ] : [
     {id:"home",label:"首页",svg:svgHome},
     {id:"market",label:"行情",svg:svgMarket},
     {id:"swap",isCenter:true},
@@ -68,7 +80,6 @@ function TabBar({ active, onSwitch, badge }) {
 
 function HomePage() {
   return React.createElement('div',{style:{height:"calc(100% - 80px)",overflowY:"auto"}},
-    // Header
     React.createElement('div',{style:{padding:"8px 18px 0",display:"flex",alignItems:"center",justifyContent:"space-between"}},
       React.createElement('div',{style:{display:"flex",alignItems:"center",gap:8,background:"rgba(255,255,255,0.08)",borderRadius:20,padding:"6px 14px 6px 8px"}},
         React.createElement('div',{style:{width:28,height:28,borderRadius:"50%",background:`linear-gradient(135deg,${C.brand}44,${C.brand})`,display:"flex",alignItems:"center",justifyContent:"center"}},
@@ -80,7 +91,6 @@ function HomePage() {
           React.createElement('path',{d:"M16 16l4 4",stroke:C.textP,strokeWidth:2,strokeLinecap:"round"})),
         React.createElement('svg',{width:22,height:22,viewBox:"0 0 24 24",fill:"none"},
           React.createElement('path',{d:"M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4-4v2M13 7a4 4 0 100-8 4 4 0 000 8zM20 8v6M23 11h-6",stroke:C.textP,strokeWidth:"1.8",strokeLinecap:"round"})))),
-    // Balance
     React.createElement('div',{style:{padding:"20px 18px 0"}},
       React.createElement('div',{style:{display:"flex",alignItems:"baseline",justifyContent:"space-between"}},
         React.createElement('div',null,
@@ -90,14 +100,12 @@ function HomePage() {
             React.createElement('span',{style:{fontSize:13,color:C.red}},'-0.82%'),
             React.createElement('span',{style:{fontSize:13,color:C.textM}},'当日盈亏'))),
         React.createElement('button',{style:{background:C.brand,border:"none",borderRadius:20,padding:"10px 22px",fontSize:14,fontWeight:700,color:"#000",cursor:"pointer"}},'去充值'))),
-    // Quick entries
     React.createElement('div',{style:{padding:"18px 18px 0",display:"flex",gap:10}},
       [{icon:"🐷",label:"理财",dot:false},{icon:"🏆",label:"赚币",dot:true},{icon:"💎",label:"DApp",dot:false},{icon:"⊞",label:"全部",dot:false}].map(e=>
         React.createElement('div',{key:e.label,style:{flex:1,display:"flex",alignItems:"center",gap:6,background:"rgba(255,255,255,0.06)",borderRadius:10,padding:"10px 12px",position:"relative"}},
           React.createElement('span',{style:{fontSize:16}},e.icon),
           React.createElement('span',{style:{fontSize:13,color:C.textP,fontWeight:500}},e.label),
           e.dot&&React.createElement('div',{style:{position:"absolute",top:6,right:8,width:6,height:6,borderRadius:"50%",background:C.red}})))),
-    // FOMO card
     React.createElement('div',{style:{padding:"18px 18px 0"}},
       React.createElement('div',{style:{borderRadius:16,overflow:"hidden",background:"linear-gradient(180deg,#3B7DDD 0%,#1E5FBB 100%)"}},
         React.createElement('div',{style:{padding:"18px 18px 0"}},React.createElement('span',{style:{fontSize:11,color:"rgba(255,255,255,0.7)",letterSpacing:1}},'FOMO 星期四')),
@@ -105,7 +113,6 @@ function HomePage() {
         React.createElement('div',{style:{padding:"0 18px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}},
           React.createElement('span',{style:{fontSize:12,color:"rgba(255,255,255,0.7)"}},'抽卡越多，获奖概率越高'),
           React.createElement('button',{style:{background:"rgba(255,255,255,0.2)",border:"none",borderRadius:18,padding:"8px 18px",fontSize:13,fontWeight:600,color:C.textW,cursor:"pointer"}},'立即参与')))),
-    // Survey card
     React.createElement('div',{style:{padding:"14px 18px 0"}},
       React.createElement('div',{style:{borderRadius:16,overflow:"hidden",background:"linear-gradient(180deg,#60B8FF 0%,#A8D8FF 100%)",padding:"20px 18px"}},
         React.createElement('span',{style:{fontSize:11,color:"rgba(0,0,0,0.5)"}},'听用户声音'),
@@ -124,7 +131,6 @@ function WalletPage() {
     {symbol:"BNB",price:"¥4,339.49",change:"+0.64%",amount:"0.0028",value:"¥12.36",color:"#F0B90B"},
   ];
   return React.createElement('div',{style:{height:"calc(100% - 80px)",overflowY:"auto"}},
-    // Header
     React.createElement('div',{style:{padding:"8px 18px 0",display:"flex",alignItems:"center",justifyContent:"space-between"}},
       React.createElement('div',{style:{display:"flex",alignItems:"center",gap:8,background:"rgba(255,255,255,0.08)",borderRadius:20,padding:"6px 14px 6px 8px"}},
         React.createElement('div',{style:{width:28,height:28,borderRadius:"50%",background:"#8BC34A",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}},'🎨'),
@@ -139,7 +145,6 @@ function WalletPage() {
         React.createElement('svg',{width:22,height:22,viewBox:"0 0 24 24",fill:"none"},
           React.createElement('circle',{cx:12,cy:12,r:9,stroke:C.textP,strokeWidth:"1.8"}),
           React.createElement('path',{d:"M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z",stroke:C.textP,strokeWidth:"1.6"})))),
-    // Wallet info
     React.createElement('div',{style:{padding:"16px 18px 0"}},
       React.createElement('div',{style:{display:"flex",alignItems:"center",gap:6}},
         React.createElement('span',{style:{fontSize:13,color:C.brand}},'我的钱包5 (b38E)'),
@@ -150,13 +155,11 @@ function WalletPage() {
         React.createElement('span',{style:{fontSize:13,color:C.brand}},'+¥4.14 (+1.37%)'),
         React.createElement('span',{style:{fontSize:13,color:C.textM}},'当日盈亏'),
         React.createElement('span',{style:{color:C.textM,fontSize:10}},'⌄'))),
-    // Actions
     React.createElement('div',{style:{padding:"20px 18px 0",display:"flex",gap:10}},
       [{icon:"↗",label:"转账",bg:C.brand},{icon:"↙",label:"收款",bg:"#3B82F6"},{icon:"📊",label:"交易历史",bg:"#6366F1"},{icon:"···",label:"",bg:"rgba(255,255,255,0.1)"}].map((a,i)=>
         React.createElement('div',{key:i,style:{flex:i<3?1:0,minWidth:i===3?44:"auto",display:"flex",alignItems:"center",gap:6,background:"rgba(255,255,255,0.06)",borderRadius:12,padding:"12px 14px",justifyContent:i===3?"center":"flex-start"}},
           React.createElement('div',{style:{width:28,height:28,borderRadius:8,background:`${a.bg}22`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,color:a.bg}},a.icon),
           a.label&&React.createElement('span',{style:{fontSize:13,color:C.textP,fontWeight:500}},a.label)))),
-    // Service cards
     React.createElement('div',{style:{padding:"16px 18px 0",display:"flex",gap:10}},
       React.createElement('div',{style:{flex:1,background:C.bgCard,borderRadius:14,padding:16,border:`1px solid ${C.border}`}},
         React.createElement('div',{style:{width:36,height:36,borderRadius:10,background:"rgba(255,100,100,0.1)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,marginBottom:10}},'💳'),
@@ -166,14 +169,12 @@ function WalletPage() {
         React.createElement('div',{style:{width:36,height:36,borderRadius:10,background:"rgba(0,230,195,0.1)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,marginBottom:10}},'🐷'),
         React.createElement('div',{style:{fontSize:12,color:C.textM}},'理财'),
         React.createElement('div',{style:{fontSize:14,fontWeight:700,color:C.textP,marginTop:2}},'10% 年化收益率'))),
-    // Token header
     React.createElement('div',{style:{padding:"20px 18px 10px",display:"flex",justifyContent:"space-between",alignItems:"center"}},
       React.createElement('div',{style:{display:"flex",alignItems:"baseline",gap:8}},
         React.createElement('span',{style:{fontSize:14,color:C.textM}},'代币'),
         React.createElement('span',{style:{fontSize:15,fontWeight:700,color:C.textP}},'¥305.53')),
       React.createElement('svg',{width:18,height:18,viewBox:"0 0 24 24",fill:"none"},
         React.createElement('path',{d:"M4 6h16M4 12h16M4 18h16",stroke:C.textM,strokeWidth:2,strokeLinecap:"round"}))),
-    // Token list
     ...tokens.map(t=>
       React.createElement('div',{key:t.symbol,style:{padding:"14px 18px",display:"flex",alignItems:"center"}},
         React.createElement('div',{style:{position:"relative",marginRight:14}},
@@ -188,7 +189,6 @@ function WalletPage() {
               React.createElement('span',{style:{fontSize:12,color:C.textM}},t.price),
               React.createElement('span',{style:{fontSize:12,color:t.change.startsWith("+")?C.brand:t.change==="0.00%"?C.textM:C.red}},t.change)),
             React.createElement('span',{style:{fontSize:12,color:C.textM}},t.value))))),
-    // Promo
     React.createElement('div',{style:{margin:"10px 18px 0",padding:"10px 16px",borderRadius:12,background:`linear-gradient(90deg,${C.brand}11,${C.brand}08)`,border:`1px solid ${C.brand}22`,display:"flex",justifyContent:"space-between",alignItems:"center"}},
       React.createElement('span',{style:{fontSize:12,color:C.brand}},'立享 10% 年化收益率'),
       React.createElement('span',{style:{fontSize:12,color:C.brand}},'›')),
@@ -196,7 +196,7 @@ function WalletPage() {
   );
 }
 
-function GuideSheet({visible,onConfirm,onDismiss}) {
+function GuideSheet({visible,onConfirm,onDismiss,plan}) {
   const [closing,setClosing] = useState(false);
   const timerRef = useRef(null);
   const doClose = useCallback((action)=>{
@@ -209,6 +209,8 @@ function GuideSheet({visible,onConfirm,onDismiss}) {
     return()=>{clearTimeout(timerRef.current);};
   },[visible,closing,doClose]);
   if(!visible) return null;
+  const descA = '检测到你经常查看钱包资产，可以一键设为启动页，省去每次切换。';
+  const descB = '检测到你经常查看钱包资产，可以一键设为启动页，省去每次切换。底部导航也会同步调整，钱包移至最左侧，原首页变为"动态"。';
   return React.createElement(React.Fragment,null,
     React.createElement('div',{onClick:()=>doClose("dismiss"),style:{position:"absolute",inset:0,zIndex:100,background:"rgba(0,0,0,0.6)",opacity:closing?0:1,transition:"opacity 0.28s ease"}}),
     React.createElement('div',{style:{position:"absolute",bottom:0,left:0,right:0,zIndex:101,background:"linear-gradient(to bottom,#1C2230,#141821)",borderRadius:"20px 20px 0 0",transform:closing?"translateY(100%)":"translateY(0)",transition:"transform 0.28s cubic-bezier(0.4,0,0.2,1)",padding:"0 0 34px",border:`1px solid ${C.border}`,borderBottom:"none"}},
@@ -218,7 +220,10 @@ function GuideSheet({visible,onConfirm,onDismiss}) {
         React.createElement('div',{style:{display:"flex",alignItems:"center",gap:10,marginBottom:10}},
           React.createElement('span',{style:{fontSize:24}},'💡'),
           React.createElement('span',{style:{fontSize:18,fontWeight:800,color:C.textW}},'设为默认启动页？')),
-        React.createElement('div',{style:{fontSize:14,color:C.textS,lineHeight:1.7,marginBottom:24}},'检测到你经常查看钱包资产，可以一键设为启动页，省去每次切换。'),
+        React.createElement('div',{style:{fontSize:14,color:C.textS,lineHeight:1.7,marginBottom:plan==="B"?16:24}},plan==="B"?descB:descA),
+        plan==="B"&&React.createElement('div',{style:{display:"flex",alignItems:"center",gap:6,padding:"10px 12px",borderRadius:10,background:`${C.brand}0A`,border:`1px solid ${C.brand}18`,marginBottom:16}},
+          React.createElement('span',{style:{fontSize:14}},'🔀'),
+          React.createElement('span',{style:{fontSize:12,color:C.brand,lineHeight:1.5}},'底部导航：钱包移至最左 | 首页变为「动态」')),
         React.createElement('button',{onClick:()=>doClose("confirm"),style:{width:"100%",padding:"15px 0",borderRadius:12,background:C.brand,border:"none",fontSize:15,fontWeight:700,color:"#000",cursor:"pointer",marginBottom:10}},'✅ 设为钱包页（推荐）'),
         React.createElement('button',{onClick:()=>doClose("dismiss"),style:{width:"100%",padding:"14px 0",borderRadius:12,background:"rgba(255,255,255,0.06)",border:"none",fontSize:14,fontWeight:500,color:C.textS,cursor:"pointer"}},'保持首页'))));
 }
@@ -232,6 +237,7 @@ function Snackbar({visible}) {
 
 function App() {
   const [screen,setScreen] = useState("intro");
+  const [plan,setPlan] = useState("A"); // "A" = tab不变, "B" = tab互换
   const [tab,setTab] = useState("home");
   const [switchCount,setSwitchCount] = useState(0);
   const [sheetVisible,setSheetVisible] = useState(false);
@@ -239,6 +245,7 @@ function App() {
   const [snackbar,setSnackbar] = useState(false);
   const [settled,setSettled] = useState(false);
   const [dismissed,setDismissed] = useState(false);
+  const [tabSwapped,setTabSwapped] = useState(false); // for plan B: tabs swapped after settle
   const [logs,setLogs] = useState([]);
 
   const log=(msg)=>{
@@ -248,17 +255,27 @@ function App() {
   const onTab=(id)=>{
     if(id==="swap"||id==="market"||id==="pay"){setTab(id);return;}
     if(id==="wallet"&&tab!=="wallet"&&!settled){
-      const n=switchCount+1; setSwitchCount(n);
-      log(`🔄 Tab切换 → 钱包 (${n}/3)`);
-      if(n>=3&&!dismissed&&sheetTotal<2){
-        setTimeout(()=>{setSheetVisible(true);setSheetTotal(p=>p+1);log("📋 guide_sheet_show 弹窗曝光");},500);
+      if(tab==="home"){
+        const n=switchCount+1; setSwitchCount(n);
+        log(`🔄 首页→钱包 切换计数 (${n}/3)`);
+        if(n>=3&&!dismissed&&sheetTotal<2){
+          setTimeout(()=>{setSheetVisible(true);setSheetTotal(p=>p+1);log("📋 guide_sheet_show 弹窗曝光");},500);
+        }
+      } else {
+        log(`⚠️ ${tab}→钱包 不计入（仅首页→钱包有效）`);
       }
     }
     setTab(id);
   };
   const onConfirm=()=>{
     setSheetVisible(false);setSettled(true);
-    log("✅ guide_sheet_confirm 设为钱包页");log("💾 guide_setting_complete 写入成功");
+    log("✅ guide_sheet_confirm 设为钱包页");
+    log("💾 guide_setting_complete 写入成功");
+    if(plan==="B"){
+      log("🔀 tab_layout_changed layout_type: swapped");
+      // In plan B, tab swap happens on "next launch" — simulate with short delay after snackbar
+      setTimeout(()=>{setTabSwapped(true);log("📐 Tab布局已交换: 钱包→最左 | 首页→动态");},3200);
+    }
     setSnackbar(true);setTimeout(()=>{setSnackbar(false);log("🔕 Snackbar 消失");},3000);
   };
   const onDismiss=()=>{
@@ -268,7 +285,10 @@ function App() {
   const reset=()=>{
     setTab("home");setSwitchCount(0);setSheetVisible(false);
     setSheetTotal(0);setSnackbar(false);setSettled(false);
-    setDismissed(false);setLogs([]);log("🔁 重置完成");
+    setDismissed(false);setTabSwapped(false);setLogs([]);log("🔁 重置完成");
+  };
+  const switchPlan=(p)=>{
+    setPlan(p);reset();log(`🔄 切换至方案${p}`);
   };
 
   if(screen==="intro"){
@@ -279,29 +299,30 @@ function App() {
       React.createElement('div',{style:{fontSize:15,color:C.brand,fontWeight:600,marginBottom:6}},'默认启动页引导提醒策略'),
       React.createElement('div',{style:{fontSize:13,color:C.textM,marginBottom:32}},'PRD v1.1 · 交互原型'),
       React.createElement('div',{style:{display:"flex",gap:8,flexWrap:"wrap",justifyContent:"center",marginBottom:36}},
-        ["连续3次切换触发","底部Sheet弹窗","弹窗内完成设置","8秒自动收起","频控≤2次"].map(t=>
+        ["连续3次切换触发","底部Sheet弹窗","弹窗内完成设置","8秒自动收起","频控≤2次","方案A/B对比"].map(t=>
           React.createElement('span',{key:t,style:{padding:"6px 14px",borderRadius:16,fontSize:12,background:`${C.brand}10`,border:`1px solid ${C.brand}20`,color:C.brand}},t))),
       React.createElement('button',{onClick:()=>{setScreen("demo");log("🚀 开始演示");},style:{padding:"14px 44px",borderRadius:12,background:C.brand,border:"none",fontSize:15,fontWeight:700,color:"#000",cursor:"pointer"}},'开始体验 →'));
   }
 
-  // Steps data
   const steps=[
-    {done:switchCount>=1,text:"点底部「钱包」Tab"},
-    {done:switchCount>=2,text:"回到「首页」再切「钱包」"},
-    {done:switchCount>=3,text:"第3次切换触发弹窗"},
+    {done:switchCount>=1,text:"从「首页」点「钱包」Tab"},
+    {done:switchCount>=2,text:"回「首页」再切「钱包」"},
+    {done:switchCount>=3,text:"第3次首页→钱包触发弹窗"},
     {done:settled||dismissed,text:"在弹窗内做出选择"},
   ];
+  if(plan==="B") steps.push({done:tabSwapped,text:"Tab布局交换生效"});
+
   const stats=[
     {k:"切换次数",v:`${switchCount}/3`,c:switchCount>=3?C.brand:C.textP},
     {k:"弹窗展示",v:`${sheetTotal}/2`,c:sheetTotal>=2?C.red:C.textP},
     {k:"设置",v:settled?"✅ 已设置":dismissed?"❌ 已拒绝":"—",c:settled?C.brand:dismissed?C.red:C.textM},
     {k:"频控",v:dismissed?"冷却30天":settled?"永久停止":"正常",c:C.textS},
   ];
+  if(plan==="B") stats.push({k:"Tab布局",v:tabSwapped?"已交换":"默认",c:tabSwapped?C.brand:C.textM});
 
   return React.createElement('div',{style:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:`radial-gradient(ellipse at 40% 30%,#0A2822 0%,${C.bg} 60%)`,padding:20,gap:36,flexWrap:"wrap"}},
     // Phone
     React.createElement('div',{style:{width:375,height:812,borderRadius:44,overflow:"hidden",background:C.bg,position:"relative",boxShadow:"0 40px 80px rgba(0,0,0,0.5), 0 0 0 2px #222830, 0 0 0 13px #111419"}},
-      // Status bar
       React.createElement('div',{style:{height:52,padding:"14px 28px 0",display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:15,fontWeight:600,color:C.textW}},
         React.createElement('span',null,'7:28'),
         React.createElement('div',{style:{position:"absolute",left:"50%",transform:"translateX(-50%)",display:"flex",alignItems:"center",gap:4}},
@@ -312,16 +333,27 @@ function App() {
           React.createElement('div',{style:{width:22,height:10,borderRadius:3,border:`1px solid ${C.textS}`,display:"flex",alignItems:"center",padding:"0 1px"}},
             React.createElement('div',{style:{width:"80%",height:6,borderRadius:1.5,background:C.green}})),
           React.createElement('span',{style:{fontSize:10,color:C.textP,fontWeight:600,marginLeft:1}},'98'))),
-      // Page content
       tab==="home"&&React.createElement(HomePage),
       tab==="wallet"&&React.createElement(WalletPage),
       (tab==="market"||tab==="pay"||tab==="swap")&&React.createElement('div',{style:{height:"calc(100% - 132px)",display:"flex",alignItems:"center",justifyContent:"center"}},
         React.createElement('span',{style:{color:C.textM,fontSize:14}},tab==="market"?"行情页面":tab==="pay"?"Pay 页面":"兑换页面")),
-      React.createElement(TabBar,{active:tab,onSwitch:onTab,badge:switchCount>=3&&!settled&&!dismissed}),
-      React.createElement(GuideSheet,{visible:sheetVisible,onConfirm:onConfirm,onDismiss:onDismiss}),
+      React.createElement(TabBar,{active:tab,onSwitch:onTab,badge:switchCount>=3&&!settled&&!dismissed,swapped:tabSwapped}),
+      React.createElement(GuideSheet,{visible:sheetVisible,onConfirm:onConfirm,onDismiss:onDismiss,plan:plan}),
       React.createElement(Snackbar,{visible:snackbar})),
     // Side panel
     React.createElement('div',{style:{maxWidth:320}},
+      // Plan switcher
+      React.createElement('div',{style:{background:"rgba(255,255,255,0.03)",borderRadius:16,padding:20,marginBottom:16,border:`1px solid ${C.border}`}},
+        React.createElement('div',{style:{fontSize:14,fontWeight:700,color:C.textP,marginBottom:12}},'🔀 方案切换'),
+        React.createElement('div',{style:{display:"flex",gap:8}},
+          React.createElement('button',{onClick:()=>switchPlan("A"),style:{flex:1,padding:"12px 0",borderRadius:10,background:plan==="A"?`${C.brand}22`:"rgba(255,255,255,0.03)",border:`1.5px solid ${plan==="A"?C.brand:"rgba(255,255,255,0.06)"}`,fontSize:13,fontWeight:700,color:plan==="A"?C.brand:C.textM,cursor:"pointer",transition:"all 0.2s"}},
+            React.createElement('div',null,'方案一'),
+            React.createElement('div',{style:{fontSize:10,fontWeight:400,marginTop:2,opacity:0.7}},'仅弹窗引导')),
+          React.createElement('button',{onClick:()=>switchPlan("B"),style:{flex:1,padding:"12px 0",borderRadius:10,background:plan==="B"?`${C.brand}22`:"rgba(255,255,255,0.03)",border:`1.5px solid ${plan==="B"?C.brand:"rgba(255,255,255,0.06)"}`,fontSize:13,fontWeight:700,color:plan==="B"?C.brand:C.textM,cursor:"pointer",transition:"all 0.2s"}},
+            React.createElement('div',null,'方案二 ⭐'),
+            React.createElement('div',{style:{fontSize:10,fontWeight:400,marginTop:2,opacity:0.7}},'弹窗 + Tab互换'))),
+        plan==="B"&&React.createElement('div',{style:{marginTop:12,padding:"10px 12px",borderRadius:10,background:"rgba(0,230,195,0.06)",border:`1px solid ${C.brand}15`,fontSize:11,color:C.textS,lineHeight:1.6}},
+          '💡 方案二特点：确认设置后，底部 Tab 栏「钱包」移至最左侧，原「首页」变为「动态」，下次启动生效。')),
       // Guide
       React.createElement('div',{style:{background:"rgba(255,255,255,0.03)",borderRadius:16,padding:20,marginBottom:16,border:`1px solid ${C.border}`}},
         React.createElement('div',{style:{fontSize:14,fontWeight:700,color:C.textP,marginBottom:14}},'📋 操作指引'),
@@ -332,7 +364,7 @@ function App() {
       // Status
       React.createElement('div',{style:{background:"rgba(255,255,255,0.03)",borderRadius:16,padding:20,marginBottom:16,border:`1px solid ${C.border}`}},
         React.createElement('div',{style:{fontSize:14,fontWeight:700,color:C.textP,marginBottom:12}},'📊 状态'),
-        React.createElement('div',{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}},
+        React.createElement('div',{style:{display:"grid",gridTemplateColumns:plan==="B"?"1fr 1fr 1fr":"1fr 1fr",gap:8}},
           ...stats.map(s=>
             React.createElement('div',{key:s.k,style:{background:"rgba(255,255,255,0.03)",borderRadius:10,padding:"10px 12px"}},
               React.createElement('div',{style:{fontSize:10,color:C.textM,marginBottom:3}},s.k),
