@@ -1,0 +1,1 @@
+# bitget-wallet-prototype-setting
